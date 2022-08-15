@@ -1,4 +1,4 @@
-//const res = require("express/lib/response");
+
 
 autoCompleteConfig = {
     renderOption(data) {
@@ -65,37 +65,43 @@ const displayMovie = async( movie, side) => {
 }
 
 const compareMovie = () => {
-    //console.log('start to compare');
-    let leftDetailTemplate = '';
-    let rightDetailTemplate = '';
-    const compaireList = ['BoxOffice','Metascore','imdbRating','imdbVotes'];
-    compaireList.forEach( element => {
-        const leftElement = leftMovie[element];
-        const rightElement = rightMovie[element];
-        if(parseInt(leftElement) > parent(rightElement)){
-            leftDetailTemplate += movieStatics(leftMovie, element, true);
-            rightDetailTemplate += movieStatics(rightMovie, element, false);
-        } else {
-            leftDetailTemplate += movieStatics(leftMovie, element, false);
-            rightDetailTemplate += movieStatics(rightMovie, element, true);
-        }
-       
-        
+   const leftMovieTemplate = document.querySelectorAll('#templateRoot-left .notification');
+   const rightMovieTemplate = document.querySelectorAll('#templateRoot-right .notification');
 
-        
-    })
-    return {
-        leftDetailTemplate,
-        rightDetailTemplate
-    }
-
+   leftMovieTemplate.forEach((element, index) => {
+     console.log("left", element);
+     const rightTemplate = rightMovieTemplate[index]
+     console.log("right", rightTemplate);
+    // let leftValue = element.dataset.value;
+    // let rightValue = rightTemplate.dataset.value;;
+    // console.log("left", leftValue);
+    // console.log("right", rightValue);
+    
+   });
+//    for(let i = 0; i < leftMovieTemplate.length; i++) {
+//     if(leftMovieTemplate[i].hasAttribute('data-value') && rightMovieTemplate[i].hasAttribute('data-value')){
+//         console.log("right value",rightMovieTemplate[i].getAttribute('data-value') );
+//     }
+//    }
+ 
 
 }
 
-//console.log("leftMove", leftMovie);
-//console.log("rightMovie", rightMovie);
+
 
 const movieTemplate = (movieDetail) => {
+    const dollor = parseInt(movieDetail.BoxOffice.replace(/\$/g, '').replace(/,/g, ''));
+    const metaScore = parseInt(movieDetail.Metascore);
+    const rating = parseFloat(movieDetail.imdbRating);
+    const imdbVotes = parseInt(movieDetail.imdbVotes.replace(/,/g, ''));
+    const awards = movieDetail.Awards.split(' ').reduce((prev, element) =>{
+        const value = parseInt(element);
+        if(isNaN(value)){
+            return prev;
+        }
+        return prev + value;
+    }, 0)
+    //console.log(awards);
     //console.log("movieDetail", movieDetail);
     return `
     <artical class="media">
@@ -112,18 +118,28 @@ const movieTemplate = (movieDetail) => {
       </div>
     </div>
   </artical> ` 
-//   + movieStatics(movieDetail, 'Awards')
-//   + movieStatics(movieDetail, 'BoxOffice',true)
-//   + movieStatics(movieDetail, 'Metascore') 
-//   + movieStatics(movieDetail, 'imdbRating')
-//   + movieStatics(movieDetail, 'imdbVotes');
+  + movieStatics(movieDetail, 'Awards', awards)
+  + movieStatics(movieDetail, 'BoxOffice',dollor)
+  + movieStatics(movieDetail, 'Metascore', metaScore) 
+  + movieStatics(movieDetail, 'imdbRating', rating)
+  + movieStatics(movieDetail, 'imdbVotes', imdbVotes);
 
 }
 
-const movieStatics = (movieDetail, movieStatics, isWinner) => {
-    const color = isWinner? 'is-primary':'is-secondary';
+// const changeColor = (element, movieStatics) =>{
+//     const section = document.querySelector(`${element}  .${movieStatics}`);
+//     console.log("section", section);
+//     // if(section.classList.contains('is-secondary')){
+//     //     section.classList.remove('is-secondary');
+//     //     section.classList.add('is-primary');
+//     // }
+
+// }
+
+const movieStatics = (movieDetail, movieStatics, dataValue) => {
+    //const color = isWinner? 'is-primary':'is-secondary';
     return `
-    <article class="notification ${color}">
+    <article data-value =${dataValue} class="notification is-secondary">
     <p class="title">${movieDetail[movieStatics]}</p>
     <p class="subtitle">${movieStatics}</p>
   </article>`
