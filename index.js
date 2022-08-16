@@ -34,8 +34,8 @@ autoCompleteConfig = {
 let leftMovie;
 let rightMovie;
 
-const displayMovie = async( movie, side) => {
-    //console.log("movie", movie);
+const displayMovie = async( movie, side, templateRoot) => {
+
     const response = await axios.get("http://www.omdbapi.com/",{
         params: {
             apikey:'40b8bf6d',
@@ -43,6 +43,9 @@ const displayMovie = async( movie, side) => {
         }
 
     })
+
+    templateRoot.innerHTML = movieTemplate(response.data);
+
     if(side ==="right"){
         rightMovie = response.data;
 
@@ -52,16 +55,13 @@ const displayMovie = async( movie, side) => {
     }
 
     if(rightMovie && leftMovie) {
-        //console.log("both movies are ready");
+        
         compareMovie();
 
     }
     
            
-    //const movieDetailHTML = onOptionSelect(movieDetail);
    
-    //detailContainer.innerHTML = movieDetailHTML;
-    return response.data;
 }
 
 const compareMovie = () => {
@@ -69,21 +69,28 @@ const compareMovie = () => {
    const rightMovieTemplate = document.querySelectorAll('#templateRoot-right .notification');
 
    leftMovieTemplate.forEach((element, index) => {
-     console.log("left", element);
+   
      const rightTemplate = rightMovieTemplate[index]
-     console.log("right", rightTemplate);
-    // let leftValue = element.dataset.value;
-    // let rightValue = rightTemplate.dataset.value;;
-    // console.log("left", leftValue);
-    // console.log("right", rightValue);
+     
+    let leftValue = parseFloat(element.dataset.value);
+   
+    let rightValue = parseFloat(rightTemplate.dataset.value);
+   
+    if(leftValue > rightValue){
+        console.log("left", leftValue);
+        console.log("right", rightValue);
+        console.log("left > right? ", leftValue > rightValue);
+        element.classList.add('is-primary');
+        rightMovieTemplate[index].classList.add('is-secondary');
+
+    } else {
+        rightMovieTemplate[index].classList.add('is-primary');
+        element.classList.add('is-secondary');
+    }
+
     
    });
-//    for(let i = 0; i < leftMovieTemplate.length; i++) {
-//     if(leftMovieTemplate[i].hasAttribute('data-value') && rightMovieTemplate[i].hasAttribute('data-value')){
-//         console.log("right value",rightMovieTemplate[i].getAttribute('data-value') );
-//     }
-//    }
- 
+
 
 }
 
@@ -101,8 +108,7 @@ const movieTemplate = (movieDetail) => {
         }
         return prev + value;
     }, 0)
-    //console.log(awards);
-    //console.log("movieDetail", movieDetail);
+  
     return `
     <artical class="media">
     <figure class="media-left">
@@ -126,20 +132,12 @@ const movieTemplate = (movieDetail) => {
 
 }
 
-// const changeColor = (element, movieStatics) =>{
-//     const section = document.querySelector(`${element}  .${movieStatics}`);
-//     console.log("section", section);
-//     // if(section.classList.contains('is-secondary')){
-//     //     section.classList.remove('is-secondary');
-//     //     section.classList.add('is-primary');
-//     // }
 
-// }
 
 const movieStatics = (movieDetail, movieStatics, dataValue) => {
-    //const color = isWinner? 'is-primary':'is-secondary';
+  
     return `
-    <article data-value =${dataValue} class="notification is-secondary">
+    <article data-value =${dataValue} class="notification">
     <p class="title">${movieDetail[movieStatics]}</p>
     <p class="subtitle">${movieStatics}</p>
   </article>`
@@ -151,25 +149,25 @@ const movieStatics = (movieDetail, movieStatics, dataValue) => {
 createAutoComplete({
     ...autoCompleteConfig,
     root: document.querySelector("#autocomplete-left"),
-    //detailTemplateRoot: document.querySelector("#templateRoot-left")
+   
     async onOptionSelect(data) {
         document.querySelector('.tutorial').classList.add('is-hidden');
-        const summary = document.querySelector("#templateRoot-left")
-        const information = await displayMovie(data, "left");
-        summary.innerHTML =  movieTemplate(information);},
+        const summary = document.querySelector("#templateRoot-left");
+        displayMovie(data, "left", summary);
+    },
    
 })
 
 createAutoComplete({
     ...autoCompleteConfig,
     root: document.querySelector("#autocomplete-right"),
-    async onOptionSelect(data) {
+   onOptionSelect(data) {
         document.querySelector('.tutorial').classList.add('is-hidden');
         const summary = document.querySelector("#templateRoot-right");
-        const information = await displayMovie(data, "right");
-        summary.innerHTML = movieTemplate(information);},
+        displayMovie(data, "right", summary);
+   }
     
 })
 
-// = document.querySelectorAll('.dropdown-content >a');
+
 
